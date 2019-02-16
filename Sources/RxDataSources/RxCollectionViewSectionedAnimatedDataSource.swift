@@ -89,11 +89,13 @@ open class RxCollectionViewSectionedAnimatedDataSource<S: AnimatableSectionModel
 
                 switch self.decideViewTransition(self, collectionView, differences) {
                 case .animated:
-                    for difference in differences {
-                        dataSource.setSections(difference.finalSections)
+                    collectionView.performBatchUpdates({
+                        for difference in differences {
+                            dataSource.setSections(difference.finalSections)
 
-                        collectionView.performBatchUpdates(difference, animationConfiguration: self.animationConfiguration)
-                    }
+                            collectionView.performBatchUpdates(difference, animationConfiguration: self.animationConfiguration)
+                        }
+                    }, completion: nil)
                 case .reload:
                     self.setSections(newSections)
                     collectionView.reloadData()

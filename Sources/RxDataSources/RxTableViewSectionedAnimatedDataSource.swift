@@ -99,10 +99,20 @@ open class RxTableViewSectionedAnimatedDataSource<S: AnimatableSectionModelType>
 
                         switch self.decideViewTransition(self, tableView, differences) {
                         case .animated:
-                            for difference in differences {
-                                dataSource.setSections(difference.finalSections)
-
-                                tableView.performBatchUpdates(difference, animationConfiguration: self.animationConfiguration)
+                            if #available(iOS 11.0, *) {
+                                tableView.performBatchUpdates({
+                                    for difference in differences {
+                                        dataSource.setSections(difference.finalSections)
+                                        _performBatchUpdates(tableView, changes: difference, animationConfiguration: self.animationConfiguration)
+                                    }
+                                }, completion: nil)
+                            } else {
+                                tableView.beginUpdates()
+                                for difference in differences {
+                                    dataSource.setSections(difference.finalSections)
+                                    _performBatchUpdates(tableView, changes: difference, animationConfiguration: self.animationConfiguration)
+                                }
+                                tableView.endUpdates()
                             }
                         case .reload:
                             self.setSections(newSections)
